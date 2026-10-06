@@ -1,0 +1,147 @@
+
+Week 2 Task: Data Collection, Cleaning, and Preprocessing for Logistics Analysis
+
+
+ 1. Introduction
+Data quality is a critical component of logistics and supply chain analytics. Logistics organizations generate large amounts of information related to orders, shipments, customers, products, delivery schedules, transportation modes, and financial transactions. However, raw operational data may contain missing values, inconsistent data types, duplicate records, invalid values, and extreme observations. If these issues are not addressed properly, they can negatively affect business analysis, visualization, and predictive modeling.
+The objective of this Week 2 project was to develop a systematic data collection, cleaning, and preprocessing pipeline for logistics analysis using Python. The DataCo SMART SUPPLY CHAIN dataset was selected as a public logistics dataset. The preprocessing process included data quality assessment, missing-value handling, duplicate detection, invalid-value checks, outlier detection, date conversion, feature engineering, and numerical normalization.
+2. Dataset and Data Collection
+2.1 Dataset Source
+The dataset used in this project is the publicly available DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS dataset. It contains supply-chain and logistics-related information such as order details, shipping modes, delivery status, product information, customer information, sales, and shipping-related variables.
+Dataset Source: https://data.mendeley.com/datasets/8gx2fvg2k6/5
+The dataset was selected because it provides realistic logistics and supply-chain data suitable for demonstrating data collection, cleaning, preprocessing, exploratory analysis, and predictive modeling techniques using Python.
+2.2 Dataset Characteristics
+The dataset contains a large number of logistics-related observations, making it suitable for demonstrating practical data preprocessing techniques. Important variables include Order ID, customer information, product information, order quantity, product price, order total, shipping mode, actual shipping days, scheduled shipping days, delivery status, late delivery risk, order region, order country, and order and shipping dates.
+import pandas as pd
+
+file_path = "../data/DataCoSupplyChainDataset.csv"
+df = pd.read_csv(file_path, encoding="latin1")
+
+print(df.shape)
+3. Initial Data Quality Assessment
+The first stage of preprocessing was to inspect the structure and quality of the dataset. The checks included the number of rows and columns, missing values, duplicate records, data types, invalid numerical values, outliers, and date fields. The dataset contained 180,519 records.
+Column	Missing Values	Percentage
+Product Description	180,519	100.00%
+Order Zipcode	155,679	86.24%
+Customer Lname	8	0.004%
+Customer Zipcode	3	0.002%
+4. Missing-Value Handling
+4.1 Handling Strategy
+The Product Description column contained 100% missing values and therefore provided no usable information for analysis, so it was removed. Order Zipcode had approximately 86.24% missing values and was also removed because such high incompleteness would provide limited analytical value. The small number of missing Customer Lname and Customer Zipcode values were replaced with the value 'Unknown' so that useful records could be retained.
+df = df.drop(
+    columns=["Product Description", "Order Zipcode"]
+)
+
+df["Customer Lname"] = df["Customer Lname"].fillna("Unknown")
+df["Customer Zipcode"] = df["Customer Zipcode"].fillna("Unknown")
+5. Duplicate Detection
+Duplicate records can lead to double-counting of orders, shipments, sales, or other business metrics. Duplicate records were checked using Pandas. The final validation showed zero duplicate rows, so no duplicate records required removal.
+duplicate_count = df.duplicated().sum()
+print("Duplicate rows:", duplicate_count)
+6. Invalid Data Detection
+Several numerical fields were checked for logically invalid values. The validation included negative actual shipping days, negative scheduled shipping days, non-positive order quantities, non-positive product prices, and non-positive order totals.
+Validation Check	Invalid Records
+Negative actual shipping days	0
+Negative scheduled shipping days	0
+Non-positive order quantities	0
+Non-positive product prices	0
+Non-positive order totals	0
+7. Outlier Detection
+7.1 IQR Method
+Outliers are observations that differ substantially from the majority of the data. In logistics analytics, outliers may represent genuine business situations such as expensive products, unusually high order values, or unusually large profits or losses. The Interquartile Range (IQR) method was used to identify potential outliers.
+def detect_outliers_iqr(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    outliers = data[
+        (data[column] < lower_bound) |
+        (data[column] > upper_bound)
+    ]
+
+    return outliers, lower_bound, upper_bound
+7.2 Outlier Results
+Variable	Lower Bound	Upper Bound	Outliers
+Days for shipping (real)	-2.5	9.5	0
+Days for shipment (scheduled)	-1.0	7.0	0
+Order Item Product Price	-174.99	424.98	2,048
+Order Item Total	-110.15	461.93	1,943
+Order Profit Per Order	-79.70	151.50	18,942
+The largest number of statistical outliers occurred in Order Profit Per Order. These observations were not automatically deleted because they may represent legitimate high-profit or loss-making transactions. A boxplot was created for Order Item Product Price to visually inspect the distribution.
+ 8. Date Conversion
+The order and shipping date columns were converted to Pandas datetime format. The errors='coerce' option was used to safely handle any values that could not be interpreted as dates.
+df["order date (DateOrders)"] = pd.to_datetime(
+    df["order date (DateOrders)"], errors="coerce"
+)
+
+df["shipping date (DateOrders)"] = pd.to_datetime(
+    df["shipping date (DateOrders)"], errors="coerce"
+)
+Final validation confirmed zero missing order dates and zero missing shipping dates.
+9. Feature Engineering
+Several time-based features were created from the order date to support future logistics analysis. These include order year, month, day, day of week, weekday name, and month name.
+df["order_year"] = df["order date (DateOrders)"].dt.year
+df["order_month"] = df["order date (DateOrders)"].dt.month
+df["order_day"] = df["order date (DateOrders)"].dt.day
+df["order_day_of_week"] = df["order date (DateOrders)"].dt.dayofweek
+df["order_weekday"] = df["order date (DateOrders)"].dt.day_name()
+df["order_month_name"] = df["order date (DateOrders)"].dt.month_name()
+10. Schedule Deviation Feature
+A new schedule_deviation feature was created to measure the difference between actual and scheduled shipping duration. A negative value means that the shipment was faster than scheduled, zero means the shipment matched the schedule, and a positive value means that the shipment took longer than scheduled.
+df["schedule_deviation"] = (
+    df["Days for shipping (real)"]
+    - df["Days for shipment (scheduled)"]
+)
+Statistic	Value
+Count	180,519
+Mean	0.566 days
+Standard deviation	1.491 days
+Minimum	-2 days
+25th percentile	0 days
+Median	1 day
+75th percentile	1 day
+Maximum	4 days
+The mean schedule deviation of approximately 0.57 days indicates that actual shipping duration was, on average, around half a day longer than the scheduled duration.
+11. Data Normalization
+Why Min-Max Normalization was selected:
+Min-Max normalization was selected because the numerical variables used in this project have different ranges and units. Scaling these variables to a common range of 0 to 1 can help machine-learning algorithms that are sensitive to feature magnitude. The normalized dataset was maintained separately from the original cleaned dataset so that business interpretation remained possible using the original units, such as days, prices, quantities, and sales amounts.
+from sklearn.preprocessing import MinMaxScaler
+
+scaling_columns = [
+    "Days for shipping (real)",
+    "Days for shipment (scheduled)",
+    "Order Item Product Price",
+    "Order Item Quantity",
+    "Order Item Total"
+]
+
+scaler = MinMaxScaler()
+df_scaled = df.copy()
+
+df_scaled[scaling_columns] = scaler.fit_transform(
+    df_scaled[scaling_columns]
+)
+Min-Max scaling transforms numerical values approximately into the range 0 to 1. This can be useful for machine-learning algorithms that are sensitive to feature scale.
+12. Complete Preprocessing Pipeline
+The complete workflow followed a structured sequence: public dataset collection, data loading, data quality assessment, missing-value handling, duplicate detection, invalid value validation, outlier detection, date conversion, feature engineering, schedule deviation calculation, normalization, and final validation.
+13. Final Data Quality Validation
+Validation Metric	Final Result
+Rows	180,519
+Columns	58
+Missing values	0
+Duplicate rows	0
+Missing order dates	0
+Missing shipping dates	0
+The processed dataset was successfully saved as processed_logistics_data.csv. The final file was verified to exist locally and had a size of approximately 98.48 MB.
+14. Impact of Data Quality on Logistics Analytics
+High-quality data is essential for reliable logistics decision-making. Missing values can reduce the usefulness of important variables and cause problems during modeling. Duplicate records can lead to incorrect order counts and inflated business metrics. Invalid values can produce unrealistic results, while unexamined outliers can strongly influence statistical models.
+The preprocessing performed in this project improves the reliability of future analysis by ensuring that the dataset has no remaining missing values or duplicate records and that important numerical and date fields have been validated. The engineered schedule_deviation feature provides a direct measure of delivery schedule performance and can support future delivery-delay analysis.
+15. Reflection
+This preprocessing exercise demonstrated that data preparation is not simply a technical step but an important part of logistics decision-making. Raw logistics data may contain significant amounts of incomplete or inconsistent information, and each issue needs to be handled according to its business meaning.
+For example, removing Product Description was reasonable because the entire column was missing. Similarly, replacing a small number of missing customer values with 'Unknown' preserved useful records without significantly affecting the dataset. The outlier analysis also showed why automated deletion can be dangerous. A high order value or unusual profit may be a legitimate business transaction rather than an error. Therefore, outliers should be investigated in their business context before being removed.
+16. Conclusion
+The Week 2 task successfully implemented a complete data collection, cleaning, and preprocessing workflow for logistics analysis using Python. The final dataset contains 180,519 rows and 58 columns, with zero missing values and zero duplicate records after preprocessing and feature engineering. Missing-value treatment, invalid-value validation, IQR-based outlier detection, date conversion, feature engineering, schedule deviation calculation, and Min-Max normalization were successfully demonstrated.
+The resulting processed dataset provides a reliable foundation for subsequent exploratory data analysis, visualization, predictive modeling, and logistics optimization. The next stage of the internship can use this cleaned dataset to identify operational patterns, investigate delivery delays, compare regions and shipping modes, and develop analytical insights for logistics decision-making.
