@@ -1,0 +1,210 @@
+
+Week 3: Advanced Data Analysis and Visualization in Logistics
+
+ 1. Introduction
+This report documents Week 3 of the Logistics Data Analyst internship project, focused on advanced exploratory data analysis (EDA), visualization, interpretation, and data-driven decision-making. The analysis continues the cleaned and preprocessed DataCo supply-chain dataset prepared during Week 2. The objective is to identify patterns in shipping performance, order activity, sales, profitability, regional operations, and delivery-risk indicators.
+Rather than treating individual charts as isolated outputs, the analysis combines descriptive statistics, distributions, correlation analysis, shipping-mode comparisons, and regional analysis to identify operational bottlenecks and areas for management attention.
+2. Business Problem and Analytical Objectives
+Logistics organizations must balance delivery reliability, promised delivery times, shipment volume, sales, and profitability. A key challenge is identifying where actual shipping performance differs from scheduled performance and which operational dimensions are associated with higher delivery-risk indicators.
+•	Perform thorough EDA on the cleaned logistics dataset.
+•	Measure central tendencies and distributions of important logistics variables.
+•	Analyze relationships and correlations among shipping, sales, profit, and delivery-risk variables.
+•	Compare shipping modes and regions to identify operational bottlenecks.
+•	Use appropriate visualizations to communicate logistics performance clearly.
+•	Translate analytical results into practical recommendations for data-driven decision-making.
+3. Dataset Description and Data Simulation
+The project uses the publicly available DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS dataset. For the internship task, the dataset is treated as a simulated logistics business environment containing order, product, customer, shipping, regional, sales, profit, and delivery-risk information.
+Category	Representative Variables
+Shipping	Days for shipping (real), Days for shipment (scheduled), Shipping Mode
+Delivery	Delivery Status, Late_delivery_risk, schedule_deviation
+Orders	Order Id, Order Item Id, Order Item Quantity
+Financial	Order Item Product Price, Order Item Total, Order Profit Per Order
+Geography	Order Region, Order Country, Order State, Market
+Time	order date (DateOrders), shipping date (DateOrders), order_year, order_month
+
+The Week 2 preprocessing pipeline resulted in 180,519 records and 58 columns, with zero missing values and zero duplicate rows after cleaning. The resulting processed dataset was used as the input for this Week 3 analysis.
+4. Tools and Technologies
+Tool	Purpose
+Pandas	Data loading, grouping, aggregation, descriptive analysis
+NumPy	Numerical operations and analysis support
+Matplotlib	Line, bar, histogram and scatter visualizations
+Seaborn	Correlation heatmap and statistical visualization
+Jupyter Notebook	Interactive analysis and documentation
+
+5. Methodology
+The analysis followed a structured workflow: load the Week 2 processed dataset; validate dates and dimensions; create monthly time features; calculate descriptive statistics; study distributions; calculate a correlation matrix; compare shipping modes; compare regions; generate visualizations; and interpret the findings from an operational and business perspective.
+6. Overall EDA Summary
+Metric	Value
+Total Orders	65,752
+Total Sales	33,054,402.38
+Average Shipping Time	3.50 days
+Average Scheduled Shipping Time	2.93 days
+Average Schedule Deviation	0.57 days
+Average Order Quantity	2.13
+Average Product Price	141.23
+Average Order Profit	21.97
+Late Delivery Risk Rate	54.83%
+
+The late-delivery risk rate of 54.83% is calculated from the dataset's Late_delivery_risk indicator. It should be interpreted as an indicator of delivery risk rather than as independent proof of confirmed late deliveries.
+7. Central Tendency and Variability
+Variable	Mean	Median	Std. Dev.
+Actual shipping days	3.50	3.00	1.62
+Scheduled shipping days	2.93	4.00	1.37
+Order item quantity	2.13	1.00	1.45
+Product price	141.23	59.99	139.73
+Order item total	183.11	163.99	120.04
+Profit per order	21.97	31.52	104.43
+Schedule deviation	0.57	1.00	1.49
+
+Actual shipping time has a mean of 3.50 days and a median of 3.00 days, indicating some higher-duration shipments influence the average. Product price shows a large difference between mean (141.23) and median (59.99), suggesting a right-skewed distribution and the influence of higher-priced items. Profit per order also has substantial variability, with a standard deviation of 104.43 compared with a mean of 21.97. Schedule deviation has a mean of 0.57 days and median of 1 day, indicating that the typical record is approximately one day away from its scheduled duration.
+8. Distribution Analysis
+Histograms were generated for actual shipping time, order quantity, product price, order total, and profit per order. Histograms were selected because they show the frequency and shape of numerical variables and help identify concentration, skewness, spread, and unusual observations.
+•	Actual shipping time distribution helps assess the normal operating delivery-duration range.
+•	Order quantity distribution helps understand typical order sizes and volume concentration.
+•	Product price distribution helps identify price concentration and high-value observations.
+•	Order total distribution helps assess transaction-value variability.
+•	Profit distribution helps identify variability and potentially unusual low- or high-profit records.
+
+
+ 
+9. Correlation Analysis
+Pearson correlation was calculated for selected numerical logistics variables. The correlation matrix helps identify linear associations and supports prioritization of variables for further investigation. Correlation does not establish causation.
+Relationship	Correlation	Interpretation
+Schedule deviation ↔ Late-delivery risk	0.78	Strong positive association
+Product price ↔ Order total	0.78	Strong positive association
+Actual shipping ↔ Schedule deviation	0.61	Moderate-to-strong positive association
+Actual shipping ↔ Scheduled shipping	0.52	Moderate positive association
+Product price ↔ Discount	0.49	Moderate positive association
+Actual shipping ↔ Late-delivery risk	0.40	Moderate positive association
+Scheduled shipping ↔ Late-delivery risk	-0.37	Moderate negative association
+
+The strongest operational relationship is between schedule deviation and the Late_delivery_risk indicator (0.78). This supports the use of schedule deviation as an important monitoring KPI. The relationship should be treated as an association rather than a causal conclusion.
+
+ 
+
+ 
+10. Shipping Mode Performance Analysis
+Shipping Mode	Shipments	Actual Days	Scheduled Days	Deviation	Late-Risk	Total Sales	Avg Profit
+First Class	27,814	2.00	1.00	+1.00	95.32%	5,100,451	23.12
+Same Day	9,737	0.48	0.00	+0.48	45.74%	1,745,202	20.85
+Second Class	35,216	3.99	2.00	+1.99	76.63%	6,416,529	21.31
+Standard Class	107,752	4.00	4.00	-0.00	38.07%	19,792,220	22.00
+
+First Class has the highest late-delivery-risk indicator at 95.32%, despite an average actual shipping time of only 2 days. Its average schedule deviation is +1 day because it is scheduled for 1 day. Second Class has the largest positive deviation (+1.99 days) and a high risk indicator of 76.63%, making it another priority for operational review. Standard Class has the largest volume, approximately 107,752 shipment records, while its average actual duration closely matches its 4-day schedule and its risk indicator is the lowest among the four modes at 38.07%.
+These results show why absolute delivery speed alone is insufficient for evaluating performance. A shipping mode should also be assessed against its promised or scheduled duration.
+
+ 
+11. Regional Performance Analysis
+Region	Shipments	Avg Shipping	Avg Deviation	Late-Risk	Total Sales
+Central Africa	1,677	3.56	0.64	57.96%	292,913
+South Asia	7,731	3.50	0.60	56.27%	1,397,365
+East Africa	1,852	3.51	0.57	55.94%	338,054
+Western Europe	27,109	3.50	0.60	55.85%	5,296,003
+South of USA	4,045	3.49	0.58	55.77%	706,904
+Eastern Europe	3,920	3.50	0.58	55.66%	696,307
+East of USA	6,915	3.50	0.58	55.66%	1,231,955
+Southeast Asia	9,539	3.50	0.56	55.53%	1,738,553
+Central Asia	553	3.42	0.65	55.33%	97,954
+West Asia	6,009	3.49	0.57	55.28%	1,056,081
+
+Central Africa has the highest late-delivery-risk indicator among the listed top-risk regions at 57.96%. Central Asia has the highest average schedule deviation at 0.65 days among these regions, but its shipment volume is comparatively small. South Asia and Southeast Asia have substantial shipment volumes and risk indicators above 55%. Western Europe is particularly important because it combines 27,109 shipment records with about 5.30 million in sales.
+The top 10 regions have relatively close risk rates, from 55.28% to 57.96%. Therefore, regional prioritization should consider both risk and business scale rather than selecting a region based only on its percentage.
+
+ 
+12. Visualization Selection and Business Value
+Visualization	Why It Was Selected	Logistics Value
+Line chart	Best for ordered time-series observations	Shows monthly changes in order volume and sales
+Histogram	Shows frequency distribution	Reveals typical shipping time, price, quantity and profit patterns
+Scatter plot	Shows relationship between two numerical variables	Compares scheduled and actual shipping durations
+Bar chart	Supports category comparison	Compares shipping modes and regions
+Heatmap	Compact view of many correlations	Highlights strong relationships for further investigation
+
+These visualizations convert numerical analysis into patterns that are easier for decision makers to compare. For example, bar charts make shipping-mode risk differences immediately visible, while a heatmap helps prioritize relationships for deeper analysis.
+13. Operational Efficiency, Cost Drivers, and Bottlenecks
+13.1 Operational Efficiency
+The overall average actual shipping time is 3.50 days compared with 2.93 scheduled days, producing an average schedule deviation of 0.57 days. Shipping-mode analysis shows that performance varies considerably by mode, with First Class and Second Class showing much larger positive deviations than Standard Class.
+13.2 Cost and Revenue Drivers
+Product price and order total have a correlation of 0.78, indicating that higher product prices are strongly associated with higher transaction totals. Shipping mode also differs in sales contribution because Standard Class accounts for the largest shipment volume and the largest total sales among the modes analyzed.
+13.3 Potential Bottlenecks
+•	First Class scheduling: very high late-risk indicator relative to its one-day schedule.
+•	Second Class scheduling: approximately two days of average positive schedule deviation.
+•	High-volume regions: Western Europe, Southeast Asia, South Asia, and East of USA deserve attention because performance improvements can affect many shipments.
+•	Schedule deviation: its strong 0.78 correlation with the late-risk indicator makes it a high-priority monitoring metric.
+14. Key Analytical Insights
+•	Delivery-risk performance differs substantially by shipping mode, with First Class at 95.32% and Standard Class at 38.07%.
+•	Second Class has the largest average positive schedule deviation at approximately 1.99 days.
+•	Standard Class handles the largest shipment volume and has an average actual duration almost identical to its scheduled duration.
+•	Schedule deviation has the strongest identified operational association with the late-delivery-risk indicator (0.78).
+•	Central Africa has the highest late-risk indicator among the top 10 regions, while Central Asia has the largest average schedule deviation among those regions.
+•	Western Europe combines high shipment volume and high sales, making it strategically important despite not having the single highest regional risk percentage.
+•	Product price and order total have a strong positive correlation (0.78), which is consistent with transaction value being influenced by item price.
+15. Recommendations
+•	Review First Class and Second Class scheduling assumptions and investigate why actual durations exceed their scheduled targets.
+•	Monitor schedule deviation as a regular operational KPI because of its strong association with the late-risk indicator.
+•	Prioritize high-volume regions for improvement initiatives so that operational gains have a larger business impact.
+•	Use both risk percentage and shipment volume when ranking regions or shipping modes for intervention.
+•	Investigate high-variance profit and transaction-value records to understand pricing, discounting, and profitability drivers.
+•	Use the Week 3 findings as inputs to Week 4 predictive modeling, particularly schedule deviation, shipping mode, regional variables, and other available operational features.
+16. Python Code Excerpts
+Example: Shipping-mode aggregation
+shipping_analysis = (
+    df.groupby("Shipping Mode")
+    .agg(
+        shipments=("Order Id", "count"),
+        avg_actual_days=("Days for shipping (real)", "mean"),
+        avg_scheduled_days=("Days for shipment (scheduled)", "mean"),
+        avg_schedule_deviation=("schedule_deviation", "mean"),
+        late_risk_rate=("Late_delivery_risk", "mean"),
+        total_sales=("Order Item Total", "sum"),
+        avg_profit=("Order Profit Per Order", "mean")
+    )
+    .reset_index()
+)
+Example: Correlation heatmap
+correlation_matrix = df[
+    [
+        "Days for shipping (real)",
+        "Days for shipment (scheduled)",
+        "Order Item Quantity",
+        "Order Item Product Price",
+        "Order Item Total",
+        "Order Profit Per Order",
+        "schedule_deviation",
+        "Late_delivery_risk"
+    ]
+].corr()
+
+sns.heatmap(
+    correlation_matrix,
+    annot=True,
+    fmt=".2f",
+    center=0
+)
+Example: Regional analysis
+regional_analysis = (
+    df.groupby("Order Region")
+    .agg(
+        shipments=("Order Id", "count"),
+        avg_shipping_days=("Days for shipping (real)", "mean"),
+        avg_schedule_deviation=("schedule_deviation", "mean"),
+        late_risk_rate=("Late_delivery_risk", "mean"),
+        total_sales=("Order Item Total", "sum")
+    )
+    .reset_index()
+)
+17. Data-Driven Decision-Making Framework
+The Week 3 analysis supports a practical decision-making cycle: monitor shipping and schedule KPIs; identify modes or regions with elevated risk; compare risk with operational scale; investigate the underlying process; and use predictive modeling in Week 4 to estimate delivery risk before an intervention is made. This creates a progression from descriptive analytics to predictive and optimization-oriented decision support.
+18. Limitations
+The analysis is observational and primarily descriptive. Correlation values identify associations but do not prove causality. The Late_delivery_risk field is treated as a dataset-provided risk indicator. In addition, regional percentages should be interpreted together with shipment volume and sales rather than in isolation.
+19. Conclusion
+Week 3 demonstrates how exploratory analysis and visualization can transform cleaned logistics data into actionable business insights. The analysis identified meaningful differences across shipping modes, regional risk patterns, distribution characteristics, and relationships among operational and financial variables. The strongest identified operational relationship was between schedule deviation and the late-delivery-risk indicator. Shipping-mode analysis also highlighted First Class and Second Class as important areas for further investigation, while Standard Class showed comparatively strong schedule alignment at high volume.
+These findings provide a clear analytical foundation for Week 4, where predictive modeling and optimization techniques can be applied to estimate delivery risk and support improved logistics decisions.
+20. Week 4 Next Step
+•	Prepare features for predictive modeling.
+•	Build and evaluate classification models for delivery-risk prediction.
+•	Compare model performance using appropriate evaluation metrics.
+•	Identify the most influential operational features.
+•	Explore optimization-oriented recommendations for improving delivery performance.
+References
+DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS dataset, Mendeley Data, Version 5. https://data.mendeley.com/datasets/8gx2fvg2k6/5
+Python libraries used: Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn.

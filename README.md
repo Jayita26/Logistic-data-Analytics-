@@ -2,63 +2,64 @@
 
 ## 📌 Project Overview
 
-This project is an end-to-end **Logistics Data Analytics and Delivery Performance Analysis** project developed as part of a Logistics Data Analyst Internship.
+This project is an end-to-end logistics data analytics project developed as part of the **YuvaIntern Logistics Data Analyst Internship**.
 
-The project focuses on analyzing logistics and supply-chain data to identify delivery performance issues, understand operational patterns, and prepare the dataset for further exploratory analysis, predictive modeling, and optimization.
+The project analyzes supply-chain and logistics data to understand delivery performance, shipping efficiency, regional patterns, sales, profitability, and delivery-risk indicators. The project progressively moves from **strategic planning and data exploration → data cleaning and preprocessing → advanced analysis and visualization → predictive modeling and optimization**.
 
-The project is being developed progressively across four stages:
+### Project Title
 
-1. Strategic Planning and Data Exploration
-2. Data Collection, Cleaning, and Preprocessing
-3. Advanced Data Analysis and Visualization
-4. Predictive Modeling and Optimization
+**Logistics Performance Analysis and Delivery Delay Prediction**
 
 ---
 
 ## 🎯 Project Objectives
 
-The main objectives of this project are to:
-
-* Analyze logistics and supply-chain performance.
-* Identify factors associated with delivery delays.
-* Calculate important logistics KPIs.
-* Clean and preprocess real-world logistics data.
-* Handle missing values, duplicates, invalid values, and outliers.
-* Perform feature engineering for logistics analysis.
-* Prepare data for machine-learning applications.
-* Develop visualizations to communicate business insights.
-* Build predictive models for delivery-related outcomes.
-* Provide data-driven recommendations for logistics improvement.
+* Analyze logistics and supply-chain performance using Python.
+* Identify delivery delays and operational bottlenecks.
+* Evaluate shipping-mode and regional performance.
+* Perform data cleaning and preprocessing.
+* Conduct exploratory and advanced data analysis.
+* Build meaningful logistics visualizations.
+* Identify relationships between operational variables.
+* Develop predictive models for delivery risk in Week 4.
+* Support data-driven logistics decision-making.
 
 ---
 
 ## 📊 Dataset
 
-This project uses the publicly available:
+The project uses the publicly available:
 
-**DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS** dataset.
+**DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS**
 
-The dataset contains logistics and supply-chain information including:
-
-* Order information
-* Customer information
-* Product information
-* Shipping modes
-* Delivery status
-* Shipping time
-* Scheduled shipping time
-* Sales and profit
-* Order regions and countries
-* Product quantities
-* Delivery-risk indicators
-
-### Dataset Source
-
-DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS:
+Dataset source:
 
 https://data.mendeley.com/datasets/8gx2fvg2k6/5
 
-The raw dataset is **not included in this GitHub repository** because of its size. It is stored locally and excluded using `.gitignore`.
+The dataset contains information related to:
+
+* Orders
+* Customers
+* Products
+* Shipping
+* Delivery performance
+* Sales
+* Profit
+* Regions
+* Shipping modes
+* Delivery-risk indicators
+* Order dates and shipping dates
+
+### Dataset Size
+
+After preprocessing:
+
+* **Rows:** 180,519
+* **Columns:** 58
+* **Missing values:** 0
+* **Duplicate rows:** 0
+
+> Raw and processed CSV files are excluded from GitHub to avoid unnecessarily committing large datasets.
 
 ---
 
@@ -68,22 +69,34 @@ The raw dataset is **not included in this GitHub repository** because of its siz
 logistics-data-analytics/
 │
 ├── data/
-│   ├── DataCoSupplyChainDataset.csv
-│   ├── DescriptionDataCoSupplyChain.csv
-│   └── processed_logistics_data.csv
+│   └── Dataset files (stored locally and excluded from GitHub)
 │
 ├── notebooks/
 │   ├── 01_strategic_planning.ipynb
-│   └── 02_data_cleaning_preprocessing.ipynb
+│   ├── 02_data_cleaning_preprocessing.ipynb
+│   └── 03_advanced_analysis_visualization.ipynb
 │
 ├── visualizations/
 │   ├── late_delivery_risk_by_shipping_mode.png
 │   ├── top_10_regions_by_late_delivery_risk.png
-│   └── product_price_outliers.png
+│   ├── product_price_outliers.png
+│   ├── monthly_order_volume.png
+│   ├── monthly_sales_trend.png
+│   ├── shipping_time_distribution.png
+│   ├── actual_vs_scheduled_shipping.png
+│   ├── logistics_correlation_heatmap.png
+│   ├── distribution_days_for_shipping_real.png
+│   ├── distribution_order_item_quantity.png
+│   ├── distribution_order_item_product_price.png
+│   ├── distribution_order_item_total.png
+│   ├── distribution_order_profit_per_order.png
+│   ├── week3_shipping_mode_risk.png
+│   └── week3_top_regions_late_risk.png
 │
 ├── reports/
 │   ├── Week_1_Strategic_Planning_Report.docx
-│   └── Week_2_Data_Cleaning_Preprocessing_Report.docx
+│   ├── Week_2_Data_Cleaning_Preprocessing_Report.docx
+│   └── Week_3_Advanced_Data_Analysis_and_Visualization_Report.docx
 │
 ├── src/
 │
@@ -91,19 +104,15 @@ logistics-data-analytics/
 └── README.md
 ```
 
-> **Note:** The CSV files are stored locally and are excluded from GitHub through `.gitignore`.
-
 ---
 
 # 📅 Week 1 — Strategic Planning and Data Exploration
 
 ### Status: ✅ Completed
 
-The first stage focused on understanding the logistics problem, defining KPIs, exploring the dataset, and identifying potential areas for improvement.
+Week 1 focused on understanding the logistics problem, defining KPIs, exploring the dataset, and developing an analytical roadmap.
 
-## Key Performance Indicators
-
-The following KPIs were defined and analyzed:
+### Key KPIs
 
 * Total Orders
 * Total Order Records
@@ -114,7 +123,7 @@ The following KPIs were defined and analyzed:
 * Schedule Deviation
 * On-Time/Non-Late-Risk Rate
 
-## Initial Results
+### Key Results
 
 | KPI                             |        Result |
 | ------------------------------- | ------------: |
@@ -127,183 +136,246 @@ The following KPIs were defined and analyzed:
 | Average Schedule Deviation      |     0.57 days |
 | On-Time/Non-Late-Risk Rate      |        45.17% |
 
-> The 45.17% figure is calculated from the `Late_delivery_risk` indicator and represents the non-late-risk category in the dataset. It should not be interpreted as a direct measurement of confirmed on-time delivery.
-
-## Week 1 Analysis
-
-The following analyses were performed:
-
-* Shipping mode analysis
-* Regional delivery-risk analysis
-* Shipping-time comparison
-* Schedule deviation analysis
-* KPI calculation
-* Initial logistics performance assessment
-
-## Visualizations
-
-### Late Delivery Risk by Shipping Mode
-
-![Late Delivery Risk by Shipping Mode](visualizations/late_delivery_risk_by_shipping_mode.png)
-
-### Top 10 Regions by Late Delivery Risk
-
-![Top 10 Regions by Late Delivery Risk](visualizations/top_10_regions_by_late_delivery_risk.png)
+The Week 1 analysis also compared shipping modes and regions to identify potential delivery-performance issues.
 
 ---
 
-# 🧹 Week 2 — Data Collection, Cleaning and Preprocessing
+# 🧹 Week 2 — Data Cleaning and Preprocessing
 
 ### Status: ✅ Completed
 
-Week 2 focused on preparing the logistics dataset for reliable downstream analytics and machine-learning applications.
+Week 2 focused on building a reliable preprocessing pipeline for logistics analysis.
 
-## Data Quality Assessment
+### Data Quality Checks
 
 Initial dataset:
 
+* Rows: 180,519
+* Columns: 56
+* Missing values: 336,209
+* Duplicate rows: 0
+
+### Missing-Value Handling
+
+The following issues were identified:
+
+* `Product Description` — 100% missing
+* `Order Zipcode` — high percentage of missing values
+* `Customer Lname` — small number of missing values
+* `Customer Zipcode` — small number of missing values
+
+The preprocessing workflow:
+
+* Removed unsuitable high-missing-value columns.
+* Replaced remaining missing categorical/value entries with `"Unknown"`.
+* Checked for duplicate records.
+* Checked for invalid numerical values.
+* Investigated numerical outliers using the IQR method.
+* Converted date columns to datetime format.
+* Created useful time-based features.
+* Created `schedule_deviation`.
+
+### Final Validation
+
 * **Rows:** 180,519
-* **Columns:** 56
-* **Missing values:** 336,209
-* **Duplicate rows:** 0
-
-## Missing Value Handling
-
-Missing values were identified in:
-
-* `Product Description`
-* `Order Zipcode`
-* `Customer Lname`
-* `Customer Zipcode`
-
-The following strategies were applied:
-
-* Dropped `Product Description` because it was completely missing.
-* Dropped `Order Zipcode` because of a very high proportion of missing values.
-* Filled missing `Customer Lname` values with `"Unknown"`.
-* Filled missing `Customer Zipcode` values with `"Unknown"`.
-
-After treatment:
-
+* **Columns:** 58
 * **Missing values:** 0
+* **Duplicate rows:** 0
+* **Missing order dates:** 0
+* **Missing shipping dates:** 0
 
-## Duplicate Detection
-
-No duplicate rows were found.
+### Schedule Deviation
 
 ```text
-Duplicate rows: 0
-```
-
-## Invalid Data Detection
-
-The following checks were performed:
-
-* Negative actual shipping days
-* Negative scheduled shipping days
-* Non-positive order quantities
-* Non-positive product prices
-* Non-positive order totals
-
-No invalid values were identified.
-
-## Outlier Detection
-
-The **Interquartile Range (IQR)** method was used to identify potential outliers.
-
-Potential outliers were detected in:
-
-* `Order Item Product Price`
-* `Order Item Total`
-* `Order Profit Per Order`
-
-The outliers were **not automatically removed**, because extreme values may represent legitimate high-value orders, profits, or losses.
-
-## Date Preprocessing
-
-The following date columns were converted to datetime format:
-
-* `order date (DateOrders)`
-* `shipping date (DateOrders)`
-
-Additional date features were created:
-
-* `order_year`
-* `order_month`
-* `order_day`
-* `order_day_of_week`
-* `order_weekday`
-* `order_month_name`
-
-## Schedule Deviation
-
-A new feature was created:
-
-```python
-schedule_deviation = (
-    df["Days for shipping (real)"]
-    - df["Days for shipment (scheduled)"]
-)
+schedule_deviation =
+Days for shipping (real)
+-
+Days for shipment (scheduled)
 ```
 
 Interpretation:
 
-* Negative value → shipment was faster than scheduled
-* Zero → shipment matched the scheduled time
-* Positive value → shipment took longer than scheduled
+* Negative → shipment was faster than scheduled
+* Zero → shipment matched schedule
+* Positive → shipment took longer than scheduled
 
-### Final Schedule Deviation
+Final average schedule deviation:
 
-| Statistic |     Value |
-| --------- | --------: |
-| Mean      | 0.57 days |
-| Median    |     1 day |
-| Minimum   |   -2 days |
-| Maximum   |    4 days |
+**0.57 days**
 
-The average schedule deviation of approximately **0.57 days** indicates that actual shipping time was, on average, higher than the scheduled shipping time.
+---
 
-## Data Normalization
+# 📈 Week 3 — Advanced Data Analysis and Visualization
 
-Min-Max normalization was applied to selected numerical features:
+### Status: ✅ Completed
 
-```python
-from sklearn.preprocessing import MinMaxScaler
+Week 3 focused on advanced exploratory analysis, visualization, and business interpretation.
 
-scaling_columns = [
-    "Days for shipping (real)",
-    "Days for shipment (scheduled)",
-    "Order Item Product Price",
-    "Order Item Quantity",
-    "Order Item Total"
-]
+### Analysis Performed
 
-scaler = MinMaxScaler()
+* Descriptive statistics
+* Mean, median, and standard deviation
+* Distribution analysis
+* Monthly trend analysis
+* Correlation analysis
+* Shipping-mode performance analysis
+* Regional performance analysis
+* Sales and profitability analysis
+* Schedule-deviation analysis
+* Delivery-risk analysis
 
-df_scaled = df.copy()
+### Overall EDA Results
 
-df_scaled[scaling_columns] = scaler.fit_transform(
-    df_scaled[scaling_columns]
-)
-```
+| Metric                       |        Result |
+| ---------------------------- | ------------: |
+| Total Orders                 |        65,752 |
+| Total Sales                  | 33,054,402.38 |
+| Average Shipping Time        |     3.50 days |
+| Average Scheduled Time       |     2.93 days |
+| Average Schedule Deviation   |     0.57 days |
+| Average Order Quantity       |          2.13 |
+| Average Product Price        |        141.23 |
+| Average Order Profit         |         21.97 |
+| Late Delivery Risk Indicator |        54.83% |
 
-Min-Max normalization was selected because the numerical variables have different ranges. Scaling them to a common range of **0 to 1** can help machine-learning algorithms that are sensitive to feature magnitude.
+> The 54.83% value is based on the dataset's `Late_delivery_risk` indicator and is interpreted as a risk indicator rather than independent confirmation of actual late deliveries.
 
-The normalized dataset was maintained separately from the original cleaned dataset so that business analysis can still use the original units.
+---
 
-## Final Week 2 Validation
+## 🚚 Shipping Mode Analysis
 
-```text
-Rows: 180519
-Columns: 58
-Missing values: 0
-Duplicate rows: 0
+| Shipping Mode  | Actual Days | Scheduled Days | Schedule Deviation | Late-Risk Indicator |
+| -------------- | ----------: | -------------: | -----------------: | ------------------: |
+| First Class    |        2.00 |           1.00 |              +1.00 |              95.32% |
+| Same Day       |        0.48 |           0.00 |              +0.48 |              45.74% |
+| Second Class   |        3.99 |           2.00 |              +1.99 |              76.63% |
+| Standard Class |        4.00 |           4.00 |              ~0.00 |              38.07% |
 
-Missing order dates: 0
-Missing shipping dates: 0
-```
+### Key Insight
 
-The final processed dataset contains **180,519 rows and 58 columns** with no missing values or duplicate rows.
+First Class and Second Class show substantially higher risk indicators and positive schedule deviations.
+
+Second Class has the largest average schedule deviation:
+
+**+1.99 days**
+
+Standard Class has the largest shipment volume and shows close alignment between actual and scheduled shipping time.
+
+---
+
+## 🌍 Regional Analysis
+
+The top-risk regional analysis identified:
+
+| Region         | Shipments | Avg. Deviation | Late-Risk |
+| -------------- | --------: | -------------: | --------: |
+| Central Africa |     1,677 |           0.64 |    57.96% |
+| South Asia     |     7,731 |           0.60 |    56.27% |
+| East Africa    |     1,852 |           0.57 |    55.94% |
+| Western Europe |    27,109 |           0.60 |    55.85% |
+| South of USA   |     4,045 |           0.58 |    55.77% |
+
+Central Africa has the highest late-risk indicator among the top 10 regions.
+
+Western Europe is particularly important because of its high shipment volume and approximately **5.30 million** in sales.
+
+---
+
+## 🔗 Correlation Analysis
+
+Important relationships identified:
+
+| Variables                               | Correlation |
+| --------------------------------------- | ----------: |
+| Schedule Deviation ↔ Late Delivery Risk |    **0.78** |
+| Product Price ↔ Order Total             |    **0.78** |
+| Actual Shipping ↔ Schedule Deviation    |    **0.61** |
+| Actual Shipping ↔ Scheduled Shipping    |    **0.52** |
+| Product Price ↔ Discount                |    **0.49** |
+| Actual Shipping ↔ Late Delivery Risk    |    **0.40** |
+
+### Key Insight
+
+The strongest identified operational relationship was between:
+
+**Schedule Deviation and Late_delivery_risk → 0.78**
+
+This indicates a strong positive association, although correlation alone does not establish causation.
+
+---
+
+# 📊 Week 3 Visualizations
+
+The project includes visualizations covering:
+
+* Monthly order volume
+* Monthly sales trend
+* Shipping-time distribution
+* Order quantity distribution
+* Product-price distribution
+* Order-total distribution
+* Profit distribution
+* Actual vs scheduled shipping time
+* Correlation heatmap
+* Late-delivery risk by shipping mode
+* Top regions by late-delivery risk
+
+These visualizations were created using **Matplotlib and Seaborn**.
+
+---
+
+# 💡 Business Insights
+
+The analysis identified several important operational insights:
+
+1. Shipping-mode performance varies considerably.
+2. First Class has a very high delivery-risk indicator relative to its one-day schedule.
+3. Second Class has the largest positive schedule deviation.
+4. Standard Class shows comparatively strong schedule alignment despite handling the largest volume.
+5. Schedule deviation has a strong association with the delivery-risk indicator.
+6. High-volume regions should be prioritized because improvements can affect a larger number of shipments.
+7. Product price has a strong positive relationship with order total.
+8. Profit per order shows substantial variability, suggesting opportunities for deeper profitability analysis.
+
+---
+
+# 🎯 Recommendations
+
+Based on the analysis:
+
+* Review First Class and Second Class scheduling assumptions.
+* Monitor schedule deviation as an important logistics KPI.
+* Investigate high-risk shipping modes.
+* Prioritize high-volume regions for operational improvements.
+* Evaluate delivery performance together with shipment volume and sales.
+* Investigate profitability and pricing patterns.
+* Use the Week 3 findings as features and business context for predictive modeling.
+
+---
+
+# 🤖 Week 4 — Predictive Modeling and Optimization
+
+### Status: 🔜 Upcoming
+
+The next stage of the project will focus on:
+
+* Feature selection
+* Preparing data for machine learning
+* Delivery-risk prediction
+* Classification models
+* Model evaluation
+* Feature importance
+* Predictive insights
+* Logistics optimization recommendations
+
+Potential models include:
+
+* Logistic Regression
+* Decision Tree
+* Random Forest
+* Other suitable classification algorithms
+
+The objective is to move from **descriptive analytics to predictive analytics and decision support**.
 
 ---
 
@@ -321,83 +393,44 @@ The final processed dataset contains **180,519 rows and 58 columns** with no mis
 
 ---
 
-# 📈 Project Progress
+# 📚 Project Learning Outcomes
 
-| Stage                                          | Status      |
-| ---------------------------------------------- | ----------- |
-| Week 1 — Strategic Planning & Data Exploration | ✅ Completed |
-| Week 2 — Data Cleaning & Preprocessing         | ✅ Completed |
-| Week 3 — Advanced Analysis & Visualization     | 🔄 Upcoming |
-| Week 4 — Predictive Modeling & Optimization    | 🔄 Upcoming |
+Through this project, I developed practical experience in:
 
----
-
-# 🔮 Future Work
-
-The next stages of the project will focus on:
-
-### Week 3 — Advanced Data Analysis and Visualization
-
-Planned activities:
-
-* Exploratory Data Analysis
-* Trend analysis
-* Regional performance analysis
-* Product-level analysis
-* Delivery-risk analysis
-* Correlation analysis
-* Advanced business visualizations
-* Identification of operational patterns
-
-### Week 4 — Predictive Modeling and Optimization
-
-Planned activities:
-
-* Feature selection
-* Train/test split
-* Classification modeling
-* Model evaluation
-* Delivery-risk prediction
-* Feature importance analysis
-* Logistics optimization
-* Business recommendations
-
-Potential machine-learning models include:
-
-* Logistic Regression
-* Decision Tree
-* Random Forest
-* Other suitable classification algorithms
-
----
-
-# 📄 Reports
-
-The project documentation is maintained in the `reports/` directory.
-
-### Completed Reports
-
-* `Week_1_Strategic_Planning_Report.docx`
-* `Week_2_Data_Cleaning_Preprocessing_Report.docx`
-
-Additional reports will be added as the project progresses.
-
----
-
-# 📌 Key Learning Outcomes
-
-Through this project, I am developing practical experience in:
-
-* Real-world data cleaning
-* Missing-value treatment
+* Logistics data analysis
+* Data cleaning
+* Missing-value handling
 * Outlier detection
 * Feature engineering
-* Data validation
-* Exploratory data analysis
-* Logistics KPI development
+* Exploratory Data Analysis
+* Statistical summaries
+* Correlation analysis
 * Data visualization
+* Business KPI analysis
+* Operational bottleneck identification
+* Data-driven decision-making
 * Machine-learning preparation
-* Business-oriented data interpretation
+
+---
+
+# 📑 Reports
+
+The project reports are maintained in the `reports/` directory:
+
+* **Week 1:** Strategic Planning and Data Exploration
+* **Week 2:** Data Cleaning and Preprocessing
+* **Week 3:** Advanced Data Analysis and Visualization
+
+---
+
+# 📌 Project Progress
+
+| Week   | Task                                  | Status      |
+| ------ | ------------------------------------- | ----------- |
+| Week 1 | Strategic Planning & Data Exploration | ✅ Completed |
+| Week 2 | Data Cleaning & Preprocessing         | ✅ Completed |
+| Week 3 | Advanced Analysis & Visualization     | ✅ Completed |
+| Week 4 | Predictive Modeling & Optimization    | 🔜 Upcoming |
 
 ---
 
@@ -405,12 +438,14 @@ Through this project, I am developing practical experience in:
 
 **Jayita Maiti**
 
-MSc Data Science
+MSc Data Science Graduate
 
-Aspiring Data Analyst | Data Science | Machine Learning
+### Career Goal
+
+Aspiring **Data Analyst / Data Science Professional**, with a focus on Python, SQL, Power BI, data analytics, machine learning, and business intelligence.
 
 ---
 
 ## ⭐ Project Goal
 
-The overall goal of this project is to transform raw logistics data into **actionable business insights and predictive intelligence** that can support better delivery performance, operational efficiency, and supply-chain decision-making.
+The long-term goal of this project is to develop an end-to-end logistics analytics solution that can transform raw supply-chain data into **actionable insights, predictive delivery-risk models, and optimization-oriented business recommendations**.
