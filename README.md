@@ -1,65 +1,577 @@
-# Logistics Data Analytics
+# Logistics Performance Analysis and Delivery Delay Prediction
 
 ## 📌 Project Overview
 
-This project is an end-to-end logistics data analytics project developed as part of the **YuvaIntern Logistics Data Analyst Internship**.
+This project was developed as part of a **Logistics Data Analyst Internship** to analyze logistics and supply chain performance using Python, perform data cleaning and exploratory analysis, build a predictive model for shipping time, and propose data-driven optimization strategies.
 
-The project analyzes supply-chain and logistics data to understand delivery performance, shipping efficiency, regional patterns, sales, profitability, and delivery-risk indicators. The project progressively moves from **strategic planning and data exploration → data cleaning and preprocessing → advanced analysis and visualization → predictive modeling and optimization**.
+The project follows an end-to-end analytics workflow:
 
-### Project Title
+**Data Collection → Data Cleaning → Exploratory Data Analysis → Visualization → Predictive Modeling → Model Evaluation → Optimization Recommendations**
 
-**Logistics Performance Analysis and Delivery Delay Prediction**
+The main objective is to understand delivery performance, identify potential bottlenecks, predict shipping time, and support better logistics decision-making.
 
 ---
 
 ## 🎯 Project Objectives
 
-* Analyze logistics and supply-chain performance using Python.
-* Identify delivery delays and operational bottlenecks.
-* Evaluate shipping-mode and regional performance.
-* Perform data cleaning and preprocessing.
-* Conduct exploratory and advanced data analysis.
-* Build meaningful logistics visualizations.
-* Identify relationships between operational variables.
-* Develop predictive models for delivery risk in Week 4.
-* Support data-driven logistics decision-making.
+* Analyze logistics and delivery performance.
+* Identify important logistics KPIs.
+* Clean and preprocess raw supply-chain data.
+* Explore shipping time, sales, profit, quantity, regions, and shipping modes.
+* Identify relationships between logistics variables.
+* Visualize operational trends and bottlenecks.
+* Build a machine learning model to predict actual shipping time.
+* Compare multiple regression models.
+* Evaluate model performance using MAE, RMSE, and R².
+* Perform cross-validation and hyperparameter tuning.
+* Identify high-risk shipping modes and regions.
+* Propose resource allocation, scheduling, route-planning, and cost-optimization strategies.
 
 ---
 
 ## 📊 Dataset
 
-The project uses the publicly available:
+The project uses the **DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS** dataset.
 
-**DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS**
+The original dataset contains approximately:
 
-Dataset source:
+* **180,519 records**
+* **56 original columns**
+* Order, customer, product, shipping, sales, profit, and delivery-related information.
 
-https://data.mendeley.com/datasets/8gx2fvg2k6/5
+Important variables include:
 
-The dataset contains information related to:
+* `Days for shipping (real)`
+* `Days for shipment (scheduled)`
+* `Shipping Mode`
+* `Order Region`
+* `Market`
+* `Order Item Quantity`
+* `Order Item Product Price`
+* `Order Item Discount`
+* `Order Item Total`
+* `Order Profit Per Order`
+* `Delivery Status`
+* `Late_delivery_risk`
+* `Customer Segment`
+* `Order Status`
 
-* Orders
-* Customers
-* Products
-* Shipping
-* Delivery performance
+### Dataset Sources
+
+* DataCo SMART Supply Chain dataset — Mendeley Data
+* DataCo SMART Supply Chain dataset — Kaggle
+
+The raw dataset is not included in the GitHub repository because of file size and data-distribution considerations.
+
+---
+
+# 📅 Project Structure
+
+The project is divided into four internship weeks.
+
+## Week 1 — Strategic Planning and Data Exploration
+
+### Objective
+
+Understand the logistics business problem, define KPIs, and perform initial data exploration.
+
+### KPIs
+
+The following KPIs were considered:
+
+1. On-Time Delivery / Non-Late-Risk Rate
+2. Average Actual Shipping Time
+3. Average Scheduled Shipping Time
+4. Average Schedule Deviation
+5. Shipment Volume
+6. Total Sales
+7. Average Order Profit
+
+### Key Findings
+
+* Total order records: **180,519**
+* Unique orders: **65,752**
+* Total quantity sold: **384,079**
+* Total sales: **33,054,402.38**
+* Average actual shipping time: **3.50 days**
+* Average scheduled shipping time: **2.93 days**
+* Average schedule deviation: **0.57 days**
+* Non-late-risk rate: **45.17%**
+
+Shipping-mode analysis showed that **Second Class** and **First Class** had larger average schedule deviations than Standard Class.
+
+---
+
+# 🧹 Week 2 — Data Cleaning and Preprocessing
+
+## Data Quality Assessment
+
+Initial dataset:
+
+* Rows: **180,519**
+* Columns: **56**
+* Missing values: **336,209**
+* Duplicate rows: **0**
+
+### Missing Values
+
+Major missing-value issues were found in:
+
+* `Product Description`
+* `Order Zipcode`
+* `Customer Lname`
+* `Customer Zipcode`
+
+### Cleaning Strategy
+
+* `Product Description` was removed because it was completely missing.
+* `Order Zipcode` was removed because of a very high missing-value percentage.
+* `Customer Lname` was filled with `"Unknown"`.
+* `Customer Zipcode` was filled with `"Unknown"`.
+* Duplicate rows were checked and none were found.
+* Invalid values were checked.
+* Date columns were converted to appropriate datetime formats.
+
+### Feature Engineering
+
+The following features were created:
+
+* Order Year
+* Order Month
+* Order Day
+* Day of Week
+* Weekday/Weekend indicator
+* Month Name
+* Schedule Deviation
+
+The schedule deviation was calculated as:
+
+```text
+Schedule Deviation =
+Actual Shipping Days - Scheduled Shipping Days
+```
+
+### Outlier Analysis
+
+IQR-based outlier detection was performed on important numerical variables.
+
+Outliers were identified in:
+
+* Product Price
+* Order Item Total
+* Order Profit Per Order
+
+The outliers were **not automatically deleted**, because extreme values may represent legitimate high-value orders or unusual but meaningful business cases.
+
+### Normalization
+
+Min-Max scaling was applied to selected numerical variables for modeling-related analysis.
+
+The original business-analysis dataset was retained separately to preserve interpretability.
+
+Final processed dataset:
+
+* **180,519 rows**
+* **58 columns**
+* **0 missing values**
+* **0 duplicate rows**
+
+---
+
+# 📈 Week 3 — Advanced Data Analysis and Visualization
+
+## Exploratory Data Analysis
+
+The following areas were analyzed:
+
+* Central tendency
+* Distributions
+* Correlations
+* Shipping modes
+* Geographic regions
 * Sales
 * Profit
-* Regions
-* Shipping modes
-* Delivery-risk indicators
-* Order dates and shipping dates
+* Shipping performance
+* Schedule deviation
 
-### Dataset Size
+### Central Tendency
 
-After preprocessing:
+| Variable                |   Mean | Median |
+| ----------------------- | -----: | -----: |
+| Actual Shipping Time    |   3.50 |   3.00 |
+| Scheduled Shipping Time |   2.93 |   4.00 |
+| Order Quantity          |   2.13 |   1.00 |
+| Product Price           | 141.23 |  59.99 |
+| Order Item Total        | 183.11 | 163.99 |
+| Order Profit            |  21.97 |  31.52 |
+| Schedule Deviation      |   0.57 |   1.00 |
 
-* **Rows:** 180,519
-* **Columns:** 58
-* **Missing values:** 0
-* **Duplicate rows:** 0
+### Correlation Analysis
 
-> Raw and processed CSV files are excluded from GitHub to avoid unnecessarily committing large datasets.
+Important correlations included:
+
+* Schedule deviation ↔ Late delivery risk: **0.78**
+* Product price ↔ Order total: **0.78**
+* Actual shipping time ↔ Schedule deviation: **0.61**
+* Actual shipping time ↔ Scheduled shipping time: **0.52**
+* Actual shipping time ↔ Late delivery risk: **0.40**
+
+Correlation indicates association and does not prove causation.
+
+### Visualizations
+
+The project includes visualizations for:
+
+* Monthly order volume
+* Monthly sales trend
+* Shipping-time distribution
+* Actual vs scheduled shipping time
+* Correlation heatmap
+* Shipping-mode delivery risk
+* Regional delivery risk
+* Numerical-variable distributions
+
+---
+
+# 🤖 Week 4 — Predictive Modeling and Optimization
+
+## Prediction Problem
+
+The predictive modeling problem was defined as:
+
+> **Predict the actual number of days required for a shipment to be delivered.**
+
+### Target Variable
+
+```text
+Days for shipping (real)
+```
+
+This is a **regression problem** because the target is a numerical value.
+
+---
+
+## Features
+
+The following features were used:
+
+```text
+Days for shipment (scheduled)
+Shipping Mode
+Order Region
+Market
+Order Item Quantity
+Order Item Product Price
+Order Item Discount
+Order Item Total
+Order Profit Per Order
+Customer Segment
+Order Status
+```
+
+Categorical variables were processed using one-hot encoding, while numerical variables were handled separately using a preprocessing pipeline.
+
+---
+
+# 🧠 Machine Learning Models
+
+Three regression models were evaluated:
+
+1. Linear Regression
+2. Decision Tree Regressor
+3. Random Forest Regressor
+
+### Why Random Forest?
+
+Random Forest was selected as the main candidate because it can:
+
+* Capture nonlinear relationships.
+* Handle interactions between variables.
+* Work with mixed feature types after preprocessing.
+* Provide feature importance.
+* Usually perform better than a single decision tree on complex datasets.
+
+---
+
+# 📊 Model Performance
+
+| Model             |        MAE |       RMSE |         R² |
+| ----------------- | ---------: | ---------: | ---------: |
+| Decision Tree     |     0.9847 |     1.2697 |     0.3884 |
+| Random Forest     | **0.9851** | **1.2651** | **0.3928** |
+| Linear Regression |     0.9860 |     1.2662 |     0.3918 |
+
+The **Random Forest model** achieved the best overall baseline performance because it had the lowest RMSE and highest R².
+
+---
+
+# 🔄 Cross-Validation
+
+Five-fold cross-validation was performed.
+
+| Model             | Mean CV R² | Std CV R² |
+| ----------------- | ---------: | --------: |
+| Linear Regression |     0.3917 |    0.0044 |
+| Decision Tree     |     0.3878 |    0.0043 |
+| Random Forest     | **0.3923** |    0.0046 |
+
+The Random Forest model achieved the highest mean cross-validation R².
+
+The relatively small standard deviation indicates stable performance across folds.
+
+---
+
+# ⚙️ Hyperparameter Tuning
+
+RandomizedSearchCV was used to explore Random Forest hyperparameters.
+
+The faster tuning configuration selected:
+
+```text
+n_estimators = 100
+max_depth = 10
+min_samples_split = 2
+min_samples_leaf = 2
+```
+
+Tuned model performance:
+
+```text
+MAE  = 0.9826
+RMSE = 1.2653
+R²   = 0.3926
+```
+
+### Final Model Decision
+
+The tuned model slightly improved MAE, but the original Random Forest had:
+
+* Lower RMSE
+* Higher R²
+
+Therefore, the **original Random Forest model was retained as the final model**.
+
+This avoids claiming that hyperparameter tuning improved overall performance when the improvement was only marginal and metric-specific.
+
+---
+
+# 🔍 Feature Importance
+
+The most important feature in the tuned Random Forest was:
+
+```text
+Days for shipment (scheduled) ≈ 92.37%
+```
+
+Other important features included:
+
+* Shipping Mode
+* Order Profit Per Order
+* Order Item Total
+* Order Item Discount
+* Product Price
+
+Feature importance represents the model's predictive contribution and should not be interpreted as proof of causation.
+
+---
+
+# 🚚 Optimization Analysis
+
+Predictions were used to estimate potential schedule deviations.
+
+The following variables were calculated:
+
+```text
+Predicted Shipping Days
+Scheduled Shipping Days
+Predicted Schedule Deviation
+Predicted Delay Days
+Predicted Delay Risk
+```
+
+### Overall Test Set Results
+
+* Test shipments: **36,104**
+* Predicted delay shipments: **22,382**
+* Predicted delay rate: **61.99%**
+* Average predicted shipping time: **3.50 days**
+* Average scheduled shipping time: **2.93 days**
+* Average predicted delay: **0.57 days**
+
+These are **model-based predictions**, not historical actual delay rates.
+
+---
+
+# 🚢 Shipping Mode Optimization
+
+| Shipping Mode  | Avg Predicted Shipping | Avg Scheduled | Avg Predicted Delay |
+| -------------- | ---------------------: | ------------: | ------------------: |
+| First Class    |                   2.00 |          1.00 |                1.00 |
+| Same Day       |                   0.48 |          0.00 |                0.48 |
+| Second Class   |                   4.00 |          2.00 |                2.00 |
+| Standard Class |                   3.99 |          4.00 |                0.01 |
+
+### Key Finding
+
+**Second Class** has the largest predicted schedule gap, approximately **2 days**.
+
+The Same Day result should be interpreted carefully because the dataset uses a scheduled value of zero for this category. Therefore, a 100% predicted gap rate should not be interpreted as evidence that Same Day shipping is operationally 100% late.
+
+---
+
+# 🌍 Regional Optimization
+
+Regions with high model-based predicted delay rates included:
+
+* Central Asia
+* Central Africa
+* East of USA
+* West Africa
+* East Africa
+* Western Europe
+* Southern Africa
+* North Africa
+* South Asia
+* US Center
+
+These results identify areas for further operational investigation. They do not establish that geography itself causes delays.
+
+---
+
+# 💡 Optimization Recommendations
+
+## 1. Dynamic Delivery Scheduling
+
+Use predicted shipping time to create realistic delivery commitments instead of relying only on fixed schedules.
+
+## 2. Risk-Based Shipment Prioritization
+
+Flag shipments with high predicted schedule deviations for early intervention.
+
+Example:
+
+```text
+Low Risk      → Normal monitoring
+Medium Risk   → Additional monitoring
+High Risk     → Priority intervention
+```
+
+## 3. Shipping Mode Optimization
+
+Review shipping-mode policies, especially for services showing large predicted schedule gaps.
+
+Second Class shipments should receive particular attention because of the high predicted schedule deviation.
+
+## 4. Regional Resource Allocation
+
+Additional operational resources can be considered for regions with consistently high predicted delay risk.
+
+Possible actions include:
+
+* Additional warehouse capacity
+* Better staffing
+* Inventory positioning
+* Additional carrier capacity
+* Improved dispatch planning
+
+## 5. Route Planning
+
+The current dataset does not contain detailed route coordinates, distance, traffic, or road-network information.
+
+Therefore, route optimization is proposed as a future enhancement.
+
+A future system could incorporate:
+
+```text
+Distance
+Traffic
+Weather
+Route congestion
+Vehicle capacity
+Historical travel time
+```
+
+to identify efficient routes.
+
+## 6. Cost Minimization
+
+Cost optimization can be integrated by assigning additional resources only to high-risk shipments.
+
+Instead of increasing resources for every shipment:
+
+```text
+High-risk shipment
+        ↓
+Predict delay
+        ↓
+Estimate operational impact
+        ↓
+Apply targeted intervention
+        ↓
+Reduce unnecessary resource cost
+```
+
+Actual monetary savings should be calculated only after reliable cost data is available.
+
+## 7. Early-Warning System
+
+The predictive model can be integrated into a logistics dashboard or operational system to identify potentially delayed shipments before delivery.
+
+---
+
+# 🔄 End-to-End Workflow
+
+```text
+Raw Logistics Dataset
+        ↓
+Data Quality Assessment
+        ↓
+Missing Value Handling
+        ↓
+Duplicate & Invalid Value Checks
+        ↓
+Outlier Analysis
+        ↓
+Feature Engineering
+        ↓
+Exploratory Data Analysis
+        ↓
+Data Visualization
+        ↓
+Feature Preprocessing
+        ↓
+Train/Test Split
+        ↓
+Model Training
+        ↓
+Model Evaluation
+        ↓
+Cross-Validation
+        ↓
+Hyperparameter Tuning
+        ↓
+Final Model Selection
+        ↓
+Shipping-Time Prediction
+        ↓
+Delay-Risk Analysis
+        ↓
+Optimization Recommendations
+```
+
+---
+
+# 🛠️ Technologies Used
+
+* **Python**
+* **Pandas**
+* **NumPy**
+* **Matplotlib**
+* **Seaborn**
+* **Scikit-learn**
+* **Jupyter Notebook**
+* **Git**
+* **GitHub**
 
 ---
 
@@ -69,34 +581,35 @@ After preprocessing:
 logistics-data-analytics/
 │
 ├── data/
-│   └── Dataset files (stored locally and excluded from GitHub)
+│   ├── DataCoSupplyChainDataset.csv
+│   ├── DescriptionDataCoSupplyChain.csv
+│   └── processed_logistics_data.csv
 │
 ├── notebooks/
 │   ├── 01_strategic_planning.ipynb
 │   ├── 02_data_cleaning_preprocessing.ipynb
-│   └── 03_advanced_analysis_visualization.ipynb
+│   ├── 03_advanced_analysis_visualization.ipynb
+│   └── 04_predictive_modeling_optimization.ipynb
 │
 ├── visualizations/
-│   ├── late_delivery_risk_by_shipping_mode.png
-│   ├── top_10_regions_by_late_delivery_risk.png
-│   ├── product_price_outliers.png
 │   ├── monthly_order_volume.png
 │   ├── monthly_sales_trend.png
 │   ├── shipping_time_distribution.png
 │   ├── actual_vs_scheduled_shipping.png
 │   ├── logistics_correlation_heatmap.png
-│   ├── distribution_days_for_shipping_real.png
-│   ├── distribution_order_item_quantity.png
-│   ├── distribution_order_item_product_price.png
-│   ├── distribution_order_item_total.png
-│   ├── distribution_order_profit_per_order.png
 │   ├── week3_shipping_mode_risk.png
-│   └── week3_top_regions_late_risk.png
+│   ├── week3_top_regions_late_risk.png
+│   ├── actual_vs_predicted_shipping_time.png
+│   ├── top_15_feature_importance.png
+│   ├── predicted_delay_risk_by_shipping_mode.png
+│   ├── top_10_predicted_delay_regions.png
+│   └── scheduled_vs_predicted_shipping_time.png
 │
 ├── reports/
-│   ├── Week_1_Strategic_Planning_Report.docx
-│   ├── Week_2_Data_Cleaning_Preprocessing_Report.docx
-│   └── Week_3_Advanced_Data_Analysis_and_Visualization_Report.docx
+│   ├── Week_1_Report.docx
+│   ├── Week_2_Report.docx
+│   ├── Week_3_Report.docx
+│   └── Week_4_Report.docx
 │
 ├── src/
 │
@@ -106,331 +619,63 @@ logistics-data-analytics/
 
 ---
 
-# 📅 Week 1 — Strategic Planning and Data Exploration
+# 📌 Important Note About Data Files
 
-### Status: ✅ Completed
+Large CSV files should not be committed to GitHub.
 
-Week 1 focused on understanding the logistics problem, defining KPIs, exploring the dataset, and developing an analytical roadmap.
+Add the following to `.gitignore`:
 
-### Key KPIs
-
-* Total Orders
-* Total Order Records
-* Total Quantity Sold
-* Total Sales
-* Average Actual Shipping Time
-* Average Scheduled Shipping Time
-* Schedule Deviation
-* On-Time/Non-Late-Risk Rate
-
-### Key Results
-
-| KPI                             |        Result |
-| ------------------------------- | ------------: |
-| Total Orders                    |        65,752 |
-| Total Order Records             |       180,519 |
-| Total Quantity Sold             |       384,079 |
-| Total Sales                     | 33,054,402.38 |
-| Average Actual Shipping Time    |     3.50 days |
-| Average Scheduled Shipping Time |     2.93 days |
-| Average Schedule Deviation      |     0.57 days |
-| On-Time/Non-Late-Risk Rate      |        45.17% |
-
-The Week 1 analysis also compared shipping modes and regions to identify potential delivery-performance issues.
-
----
-
-# 🧹 Week 2 — Data Cleaning and Preprocessing
-
-### Status: ✅ Completed
-
-Week 2 focused on building a reliable preprocessing pipeline for logistics analysis.
-
-### Data Quality Checks
-
-Initial dataset:
-
-* Rows: 180,519
-* Columns: 56
-* Missing values: 336,209
-* Duplicate rows: 0
-
-### Missing-Value Handling
-
-The following issues were identified:
-
-* `Product Description` — 100% missing
-* `Order Zipcode` — high percentage of missing values
-* `Customer Lname` — small number of missing values
-* `Customer Zipcode` — small number of missing values
-
-The preprocessing workflow:
-
-* Removed unsuitable high-missing-value columns.
-* Replaced remaining missing categorical/value entries with `"Unknown"`.
-* Checked for duplicate records.
-* Checked for invalid numerical values.
-* Investigated numerical outliers using the IQR method.
-* Converted date columns to datetime format.
-* Created useful time-based features.
-* Created `schedule_deviation`.
-
-### Final Validation
-
-* **Rows:** 180,519
-* **Columns:** 58
-* **Missing values:** 0
-* **Duplicate rows:** 0
-* **Missing order dates:** 0
-* **Missing shipping dates:** 0
-
-### Schedule Deviation
-
-```text
-schedule_deviation =
-Days for shipping (real)
--
-Days for shipment (scheduled)
+```gitignore
+data/*.csv
 ```
 
-Interpretation:
-
-* Negative → shipment was faster than scheduled
-* Zero → shipment matched schedule
-* Positive → shipment took longer than scheduled
-
-Final average schedule deviation:
-
-**0.57 days**
+This keeps the repository lightweight while allowing the notebooks and analysis code to remain available.
 
 ---
 
-# 📈 Week 3 — Advanced Data Analysis and Visualization
+# 📈 Key Business Insights
 
-### Status: ✅ Completed
-
-Week 3 focused on advanced exploratory analysis, visualization, and business interpretation.
-
-### Analysis Performed
-
-* Descriptive statistics
-* Mean, median, and standard deviation
-* Distribution analysis
-* Monthly trend analysis
-* Correlation analysis
-* Shipping-mode performance analysis
-* Regional performance analysis
-* Sales and profitability analysis
-* Schedule-deviation analysis
-* Delivery-risk analysis
-
-### Overall EDA Results
-
-| Metric                       |        Result |
-| ---------------------------- | ------------: |
-| Total Orders                 |        65,752 |
-| Total Sales                  | 33,054,402.38 |
-| Average Shipping Time        |     3.50 days |
-| Average Scheduled Time       |     2.93 days |
-| Average Schedule Deviation   |     0.57 days |
-| Average Order Quantity       |          2.13 |
-| Average Product Price        |        141.23 |
-| Average Order Profit         |         21.97 |
-| Late Delivery Risk Indicator |        54.83% |
-
-> The 54.83% value is based on the dataset's `Late_delivery_risk` indicator and is interpreted as a risk indicator rather than independent confirmation of actual late deliveries.
+1. Actual shipping time averages approximately **3.50 days**, compared with a scheduled average of **2.93 days**.
+2. Average schedule deviation is approximately **0.57 days**.
+3. Schedule deviation has a strong positive association with late-delivery risk.
+4. Second Class shipping has the largest predicted schedule gap.
+5. Standard Class has the smallest average predicted schedule deviation among the major shipping modes.
+6. The Random Forest model achieved the best overall baseline performance among the tested models.
+7. Scheduled shipping duration is the dominant predictive feature in the current model.
+8. Several regions show high model-based predicted delay risk and should be prioritized for operational investigation.
+9. The current model has moderate predictive performance, indicating that additional operational features could improve forecasting.
+10. Route, traffic, distance, weather, and carrier information could improve future logistics optimization.
 
 ---
 
-## 🚚 Shipping Mode Analysis
+# ⚠️ Limitations
 
-| Shipping Mode  | Actual Days | Scheduled Days | Schedule Deviation | Late-Risk Indicator |
-| -------------- | ----------: | -------------: | -----------------: | ------------------: |
-| First Class    |        2.00 |           1.00 |              +1.00 |              95.32% |
-| Same Day       |        0.48 |           0.00 |              +0.48 |              45.74% |
-| Second Class   |        3.99 |           2.00 |              +1.99 |              76.63% |
-| Standard Class |        4.00 |           4.00 |              ~0.00 |              38.07% |
-
-### Key Insight
-
-First Class and Second Class show substantially higher risk indicators and positive schedule deviations.
-
-Second Class has the largest average schedule deviation:
-
-**+1.99 days**
-
-Standard Class has the largest shipment volume and shows close alignment between actual and scheduled shipping time.
+* The dataset does not provide detailed route information.
+* Traffic and weather information is unavailable.
+* Carrier-level information is limited.
+* The model predicts shipping duration rather than directly optimizing delivery routes.
+* Model-based delay rates should not be treated as actual historical delay rates.
+* Feature importance does not establish causal relationships.
+* Additional operational features may be required for higher predictive accuracy.
 
 ---
 
-## 🌍 Regional Analysis
+# 🚀 Future Improvements
 
-The top-risk regional analysis identified:
+Future versions of the project can include:
 
-| Region         | Shipments | Avg. Deviation | Late-Risk |
-| -------------- | --------: | -------------: | --------: |
-| Central Africa |     1,677 |           0.64 |    57.96% |
-| South Asia     |     7,731 |           0.60 |    56.27% |
-| East Africa    |     1,852 |           0.57 |    55.94% |
-| Western Europe |    27,109 |           0.60 |    55.85% |
-| South of USA   |     4,045 |           0.58 |    55.77% |
-
-Central Africa has the highest late-risk indicator among the top 10 regions.
-
-Western Europe is particularly important because of its high shipment volume and approximately **5.30 million** in sales.
-
----
-
-## 🔗 Correlation Analysis
-
-Important relationships identified:
-
-| Variables                               | Correlation |
-| --------------------------------------- | ----------: |
-| Schedule Deviation ↔ Late Delivery Risk |    **0.78** |
-| Product Price ↔ Order Total             |    **0.78** |
-| Actual Shipping ↔ Schedule Deviation    |    **0.61** |
-| Actual Shipping ↔ Scheduled Shipping    |    **0.52** |
-| Product Price ↔ Discount                |    **0.49** |
-| Actual Shipping ↔ Late Delivery Risk    |    **0.40** |
-
-### Key Insight
-
-The strongest identified operational relationship was between:
-
-**Schedule Deviation and Late_delivery_risk → 0.78**
-
-This indicates a strong positive association, although correlation alone does not establish causation.
-
----
-
-# 📊 Week 3 Visualizations
-
-The project includes visualizations covering:
-
-* Monthly order volume
-* Monthly sales trend
-* Shipping-time distribution
-* Order quantity distribution
-* Product-price distribution
-* Order-total distribution
-* Profit distribution
-* Actual vs scheduled shipping time
-* Correlation heatmap
-* Late-delivery risk by shipping mode
-* Top regions by late-delivery risk
-
-These visualizations were created using **Matplotlib and Seaborn**.
-
----
-
-# 💡 Business Insights
-
-The analysis identified several important operational insights:
-
-1. Shipping-mode performance varies considerably.
-2. First Class has a very high delivery-risk indicator relative to its one-day schedule.
-3. Second Class has the largest positive schedule deviation.
-4. Standard Class shows comparatively strong schedule alignment despite handling the largest volume.
-5. Schedule deviation has a strong association with the delivery-risk indicator.
-6. High-volume regions should be prioritized because improvements can affect a larger number of shipments.
-7. Product price has a strong positive relationship with order total.
-8. Profit per order shows substantial variability, suggesting opportunities for deeper profitability analysis.
-
----
-
-# 🎯 Recommendations
-
-Based on the analysis:
-
-* Review First Class and Second Class scheduling assumptions.
-* Monitor schedule deviation as an important logistics KPI.
-* Investigate high-risk shipping modes.
-* Prioritize high-volume regions for operational improvements.
-* Evaluate delivery performance together with shipment volume and sales.
-* Investigate profitability and pricing patterns.
-* Use the Week 3 findings as features and business context for predictive modeling.
-
----
-
-# 🤖 Week 4 — Predictive Modeling and Optimization
-
-### Status: 🔜 Upcoming
-
-The next stage of the project will focus on:
-
-* Feature selection
-* Preparing data for machine learning
-* Delivery-risk prediction
-* Classification models
-* Model evaluation
-* Feature importance
-* Predictive insights
-* Logistics optimization recommendations
-
-Potential models include:
-
-* Logistic Regression
-* Decision Tree
-* Random Forest
-* Other suitable classification algorithms
-
-The objective is to move from **descriptive analytics to predictive analytics and decision support**.
-
----
-
-# 🛠️ Technologies Used
-
-* Python
-* Pandas
-* NumPy
-* Matplotlib
-* Seaborn
-* Scikit-learn
-* Jupyter Notebook
-* Git
-* GitHub
-
----
-
-# 📚 Project Learning Outcomes
-
-Through this project, I developed practical experience in:
-
-* Logistics data analysis
-* Data cleaning
-* Missing-value handling
-* Outlier detection
-* Feature engineering
-* Exploratory Data Analysis
-* Statistical summaries
-* Correlation analysis
-* Data visualization
-* Business KPI analysis
-* Operational bottleneck identification
-* Data-driven decision-making
-* Machine-learning preparation
-
----
-
-# 📑 Reports
-
-The project reports are maintained in the `reports/` directory:
-
-* **Week 1:** Strategic Planning and Data Exploration
-* **Week 2:** Data Cleaning and Preprocessing
-* **Week 3:** Advanced Data Analysis and Visualization
-
----
-
-# 📌 Project Progress
-
-| Week   | Task                                  | Status      |
-| ------ | ------------------------------------- | ----------- |
-| Week 1 | Strategic Planning & Data Exploration | ✅ Completed |
-| Week 2 | Data Cleaning & Preprocessing         | ✅ Completed |
-| Week 3 | Advanced Analysis & Visualization     | ✅ Completed |
-| Week 4 | Predictive Modeling & Optimization    | 🔜 Upcoming |
+* XGBoost or LightGBM regression
+* Gradient Boosting models
+* Hyperparameter optimization with larger search spaces
+* Route optimization algorithms
+* Traffic and weather data
+* Real-time shipment tracking
+* Carrier performance analysis
+* Cost-aware optimization
+* Power BI logistics dashboard
+* FastAPI prediction API
+* Automated model monitoring
+* Real-time delay alert system
 
 ---
 
@@ -440,12 +685,22 @@ The project reports are maintained in the `reports/` directory:
 
 MSc Data Science Graduate
 
-### Career Goal
-
-Aspiring **Data Analyst / Data Science Professional**, with a focus on Python, SQL, Power BI, data analytics, machine learning, and business intelligence.
+Project: **Logistics Performance Analysis and Delivery Delay Prediction**
 
 ---
 
-## ⭐ Project Goal
+## 📜 Internship Context
 
-The long-term goal of this project is to develop an end-to-end logistics analytics solution that can transform raw supply-chain data into **actionable insights, predictive delivery-risk models, and optimization-oriented business recommendations**.
+This project was completed as part of a **Logistics Data Analyst Internship** and demonstrates practical skills in:
+
+* Data Analytics
+* Data Cleaning
+* Exploratory Data Analysis
+* Data Visualization
+* Machine Learning
+* Regression Modeling
+* Model Evaluation
+* Predictive Analytics
+* Logistics Optimization
+* Business Insight Generation
+* Python Programming

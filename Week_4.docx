@@ -1,0 +1,587 @@
+WEEK 4: Predictive Modeling and Optimization for Logistics Delivery Performance
+
+1. Executive Summary
+This report presents the fourth and final stage of the logistics analytics project, focusing on predictive modeling and optimization. The objective was to predict actual shipping time and use the predictions to identify potential schedule gaps and operational risks.
+The DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS dataset was used for this project. After data preparation, machine learning regression models were developed to predict the target variable, Days for shipping (real).
+Three models were evaluated: Linear Regression, Decision Tree Regressor, and Random Forest Regressor. Model performance was measured using Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and R². Random Forest produced the best overall baseline performance, achieving an MAE of 0.9851 days, RMSE of 1.2651 days, and R² of 0.3928.
+Five-fold cross-validation also showed that Random Forest had the highest mean R² of 0.3923. Hyperparameter tuning slightly improved MAE but did not improve RMSE or R², so the original Random Forest model was retained as the final model.
+The final analysis was extended into an optimization framework. Model predictions were compared with scheduled shipping times to identify potential delay risks. The results were used to propose dynamic scheduling, risk-based shipment prioritization, regional resource allocation, shipping-mode review, route-planning improvements, and targeted cost-minimization strategies.
+
+2. Introduction
+Logistics organizations need accurate delivery-time estimates to manage inventory, transportation capacity, warehouse operations, staffing, customer commitments, and shipment priorities.
+Unexpected delivery delays can increase operational costs and negatively affect customer satisfaction. Predictive analytics can help logistics teams estimate shipping duration before delivery and identify shipments that may exceed their scheduled delivery time.
+The previous project stages focused on strategic planning, data cleaning, preprocessing, exploratory analysis, and visualization. Week 4 extends this work by applying supervised machine learning and using model predictions to support logistics optimization.
+The overall workflow is:
+Data Preparation → Feature Engineering → Model Training → Model Evaluation → Prediction → Delay Analysis → Optimization Recommendations
+3. Problem Definition
+The logistics prediction problem was defined as a regression problem.
+Objective
+Predict the actual number of days required for a shipment to be delivered.
+Target Variable
+Days for shipping (real)
+The predicted shipping time is then compared with:
+Days for shipment (scheduled)
+to calculate the predicted schedule deviation.
+Schedule Deviation
+The following formula was used:
+Schedule Deviation = Predicted Shipping Days − Scheduled Shipping Days
+If the predicted shipping time is greater than the scheduled time, the shipment is considered potentially at risk of delay.
+
+4. Dataset Description
+The project uses the DataCo SMART SUPPLY CHAIN FOR BIG DATA ANALYSIS dataset.
+The dataset contains information related to orders, customers, products, sales, profits, shipping, and delivery performance.
+Dataset Summary
+Item	Value
+Total records	180,519
+Original columns	56
+Processed columns	58
+Unique orders	65,752
+Missing values after preprocessing	0
+Duplicate rows	0
+The dataset was cleaned and prepared during Week 2 before being used for predictive modeling.
+
+5. Selected Features
+The following features were selected as predictors:
+1.	Days for shipment (scheduled)
+2.	Shipping Mode
+3.	Order Region
+4.	Market
+5.	Order Item Quantity
+6.	Order Item Product Price
+7.	Order Item Discount
+8.	Order Item Total
+9.	Order Profit Per Order
+10.	Customer Segment
+11.	Order Status
+Numerical Features
+•	Days for shipment (scheduled)
+•	Order Item Quantity
+•	Order Item Product Price
+•	Order Item Discount
+•	Order Item Total
+•	Order Profit Per Order
+Categorical Features
+•	Shipping Mode
+•	Order Region
+•	Market
+•	Customer Segment
+•	Order Status
+
+6. Data Preparation
+A preprocessing pipeline was developed using Scikit-learn.
+Numerical features were handled using median imputation.
+Categorical features were handled using most-frequent imputation followed by one-hot encoding.
+The dataset was divided into:
+•	80% training data
+•	20% testing data
+The train-test split used random_state=42 to ensure reproducibility.
+Python Code
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42
+)
+Preprocessing Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
+
+numerical_transformer = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="median"))
+    ]
+)
+
+categorical_transformer = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore"))
+    ]
+)
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", numerical_transformer, numerical_features),
+        ("cat", categorical_transformer, categorical_features)
+    ]
+)
+
+7. Model Selection
+Three regression models were selected for comparison.
+7.1 Linear Regression
+Linear Regression was used as a simple baseline model. It provides an interpretable benchmark for determining whether more complex models provide meaningful improvement.
+7.2 Decision Tree Regressor
+Decision Tree Regression was selected because it can capture nonlinear relationships and interactions between features.
+7.3 Random Forest Regressor
+Random Forest was selected because it combines multiple decision trees and can capture nonlinear relationships more effectively than a single decision tree.
+It also provides feature-importance information, which is useful for business interpretation.
+
+8. Model Training
+The following models were trained:
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+
+linear_model = LinearRegression()
+
+decision_tree = DecisionTreeRegressor(
+    max_depth=10,
+    random_state=42
+)
+
+random_forest = RandomForestRegressor(
+    n_estimators=100,
+    max_depth=15,
+    random_state=42,
+    n_jobs=-1
+)
+Each model was integrated with the preprocessing pipeline.
+
+9. Model Performance Evaluation
+The following metrics were used:
+Mean Absolute Error (MAE)
+MAE measures the average absolute difference between actual and predicted values.
+Lower MAE indicates better performance.
+Root Mean Squared Error (RMSE)
+RMSE gives greater importance to larger prediction errors.
+Lower RMSE indicates better performance.
+R² Score
+R² measures how much variation in the target variable is explained by the model.
+Higher R² indicates better performance.
+
+10. Baseline Model Results
+Model	MAE	RMSE	R²
+Decision Tree	0.9847	1.2697	0.3884
+Random Forest	0.9851	1.2651	0.3928
+Linear Regression	0.9860	1.2662	0.3918
+Interpretation
+Random Forest achieved:
+•	Lowest RMSE: 1.2651
+•	Highest R²: 0.3928
+Decision Tree achieved a slightly lower MAE of 0.9847, but Random Forest performed better on RMSE and R².
+Therefore, Random Forest was selected as the best overall baseline model.
+
+11. Cross-Validation
+Five-fold cross-validation was performed to determine whether the models provided stable performance across different subsets of the training data.
+Model	Mean CV R²	Standard Deviation
+Linear Regression	0.391694	0.004377
+Decision Tree	0.387756	0.004296
+Random Forest	0.392329	0.004598
+Interpretation
+Random Forest achieved the highest mean CV R² of 0.392329.
+The small standard deviation indicates that model performance was relatively stable across the five folds.
+The results also show that Linear Regression performed very close to Random Forest. This suggests that the current feature set provides moderate predictive information and that additional operational features could improve future models.
+
+12. Hyperparameter Tuning
+Hyperparameter tuning was performed using RandomizedSearchCV.
+A smaller search space was used to reduce computational cost.
+fast_param_grid = {
+    "model__n_estimators": [50, 75, 100],
+    "model__max_depth": [10, 15],
+    "model__min_samples_split": [2, 5],
+    "model__min_samples_leaf": [1, 2]
+}
+The selected parameters were:
+Parameter	Best Value
+n_estimators	100
+max_depth	10
+min_samples_split	2
+min_samples_leaf	2
+Tuned Model Results
+•	MAE: 0.9826
+•	RMSE: 1.2653
+•	R²: 0.3926
+
+13. Original vs Tuned Random Forest
+Model	MAE	RMSE	R²
+Original Random Forest	0.9851	1.2651	0.3928
+Tuned Random Forest	0.9826	1.2653	0.3926
+The tuned model slightly improved MAE.
+However, the original Random Forest achieved:
+•	Lower RMSE
+•	Higher R²
+Therefore, the original Random Forest was retained as the final model.
+This is important because hyperparameter tuning does not automatically mean that a model has improved overall performance.
+
+14. Prediction Error Analysis
+Prediction results were compared with actual shipping time.
+The prediction error was calculated as:
+prediction_results = pd.DataFrame({
+    "Actual": y_test.values,
+    "Predicted": y_pred_tuned
+})
+
+prediction_results["Error"] = (
+    prediction_results["Actual"]
+    - prediction_results["Predicted"]
+)
+
+prediction_results["Absolute_Error"] = (
+    prediction_results["Error"].abs()
+)
+For the tuned model, the absolute error statistics were:
+Statistic	Value
+Mean	0.9826
+Standard Deviation	0.7972
+Median	0.9945
+Maximum	2.6760
+The results indicate that the model provides useful estimates for broad operational planning, although prediction errors remain significant.
+ 
+
+15. Feature Importance
+Feature importance was analyzed using the Random Forest model.
+Feature	Importance
+Days for shipment (scheduled)	92.3718%
+Shipping Mode – Same Day	2.9713%
+Shipping Mode – First Class	2.1848%
+Order Profit Per Order	0.6830%
+Order Item Total	0.4312%
+Order Item Discount	0.3765%
+Order Item Product Price	0.1453%
+Order Item Quantity	0.0610%
+Interpretation
+Days for shipment (scheduled) was by far the most important predictive feature, with approximately 92.37% feature importance.
+This indicates that scheduled shipping duration provides the strongest predictive contribution within the current model.
+However, feature importance indicates predictive contribution and does not prove causation.
+ 
+
+16. Optimization Method
+The trained model was used to estimate potential schedule deviations.
+Three additional measures were calculated:
+Predicted Schedule Deviation
+Predicted Shipping Days − Scheduled Shipping Days
+Predicted Delay Days
+max(Predicted Schedule Deviation, 0)
+Predicted Delay Risk
+A shipment was classified as potentially delayed when:
+Predicted Schedule Deviation > 0
+This approach allows logistics managers to prioritize shipments that may require intervention.
+
+17. Overall Optimization Results
+The model was evaluated on the 36,104-record test set.
+Metric	Result
+Test shipments	36,104
+Predicted delay shipments	22,382
+Predicted delay rate	61.99%
+Average predicted shipping time	3.4984 days
+Average scheduled shipping time	2.9339 days
+Average predicted delay	0.5739 days
+Interpretation
+The average predicted shipping time was approximately 3.50 days, while the average scheduled shipping time was approximately 2.93 days.
+This gives an average predicted schedule gap of approximately 0.57 days.
+The 61.99% figure represents a model-based predicted delay rate on the test data. It should not be interpreted as the historical actual delay rate.
+ 
+
+18. Shipping-Mode Optimization
+Shipping Mode	Shipments	Avg Predicted Shipping	Avg Scheduled	Avg Predicted Delay
+First Class	5,531	2.0000	1.0	1.0000
+Same Day	1,961	0.4782	0.0	0.4782
+Second Class	7,026	3.9966	2.0	1.9966
+Standard Class	21,586	3.9946	4.0	0.0103
+Key Finding
+Second Class has the largest predicted schedule gap, approximately 2 days.
+This indicates that Second Class shipments should receive additional schedule review and operational monitoring.
+The Same Day category requires careful interpretation because the dataset records the scheduled shipping value as zero. Therefore, a 100% predicted gap rate for Same Day should not be interpreted as evidence that Same Day delivery is operationally 100% late.
+Standard Class has a very small average predicted schedule deviation.
+ 
+
+19. Regional Optimization
+The model-based regional analysis identified several areas with relatively high predicted delay risk.
+Region	Shipments	Avg Predicted Days	Avg Scheduled Days	Predicted Delay Rate
+Central Asia	108	3.3403	2.7500	86.11%
+Central Africa	360	3.5748	2.9361	84.44%
+East of USA	1,385	3.4907	2.9061	81.52%
+West Africa	712	3.5297	2.9846	77.81%
+East Africa	374	3.5017	2.9332	70.59%
+Western Europe	5,493	3.5019	2.9099	70.20%
+Southern Africa	213	3.3175	2.7700	67.61%
+North Africa	641	3.4432	2.8861	63.65%
+South Asia	1,556	3.5047	2.9030	62.34%
+US Center	1,202	3.4992	2.9085	60.73%
+Interpretation
+Central Asia, Central Africa, and East of USA show relatively high model-based predicted delay rates.
+These regions should be considered for additional operational investigation and resource planning.
+However, the results do not prove that geography itself causes delays. Additional factors such as distance, carrier, traffic, weather, and route complexity would be required for causal analysis.
+ 
+
+20. Optimization Recommendations
+20.1 Dynamic Scheduling
+The predicted shipping time can be used to create more realistic delivery schedules.
+Instead of using the same fixed scheduling assumptions for all shipments, predicted delivery duration can be incorporated into planning.
+
+20.2 Risk-Based Shipment Prioritization
+Shipments with high predicted schedule deviations can be flagged for early intervention.
+A simple operational framework is:
+Low Risk
+   ↓
+Normal Monitoring
+
+Medium Risk
+   ↓
+Additional Monitoring
+
+High Risk
+   ↓
+Priority Intervention
+This allows the organization to focus resources where they are most needed.
+
+20.3 Shipping-Mode Optimization
+Shipping-mode performance should be reviewed regularly.
+Second Class shipments show the largest predicted schedule gap and should be investigated to determine whether:
+•	Scheduling assumptions are too aggressive.
+•	Additional capacity is required.
+•	Alternative shipping modes should be considered.
+•	Dispatch planning should be improved.
+
+20.4 Regional Resource Allocation
+Regions with consistently high predicted delay risk can receive additional operational resources.
+Possible actions include:
+•	Additional warehouse staffing
+•	Additional carrier capacity
+•	Inventory repositioning
+•	Improved dispatch planning
+•	Additional monitoring
+•	Regional fulfillment capacity
+Resources should be targeted rather than distributed equally across all regions.
+
+20.5 Route Planning Improvements
+The current dataset does not contain sufficient information for direct route optimization.
+Future route-planning models should include:
+•	Distance
+•	GPS coordinates
+•	Traffic conditions
+•	Road-network information
+•	Weather conditions
+•	Vehicle capacity
+•	Historical travel time
+With these features, route optimization algorithms could identify efficient routes and reduce transportation time.
+
+20.6 Cost Minimization
+Optimization should also consider operational cost.
+Instead of applying expensive interventions to every shipment, the organization can prioritize high-risk shipments.
+A possible strategy is:
+High-Risk Shipment
+        ↓
+Predict Expected Delay
+        ↓
+Estimate Operational Impact
+        ↓
+Apply Targeted Intervention
+        ↓
+Reduce Unnecessary Resource Usage
+Actual monetary savings should only be calculated after reliable cost data is available.
+
+20.7 Early-Warning System
+The predictive model can be integrated into a logistics dashboard or application.
+A possible workflow is:
+New Shipment
+      ↓
+Model Prediction
+      ↓
+Predicted Shipping Time
+      ↓
+Compare with Schedule
+      ↓
+Calculate Delay Risk
+      ↓
+Alert Operations Team
+This can help logistics teams take action before a shipment becomes significantly delayed.
+
+
+21. End-to-End Implementation Flow
+Raw Logistics Dataset
+        ↓
+Data Quality Assessment
+        ↓
+Missing Value Handling
+        ↓
+Duplicate & Invalid Value Checks
+        ↓
+Feature Engineering
+        ↓
+Exploratory Data Analysis
+        ↓
+Data Visualization
+        ↓
+Feature Preprocessing
+        ↓
+Train/Test Split
+        ↓
+Model Training
+        ↓
+Model Evaluation
+        ↓
+Cross-Validation
+        ↓
+Hyperparameter Tuning
+        ↓
+Final Model Selection
+        ↓
+Shipping-Time Prediction
+        ↓
+Delay-Risk Analysis
+        ↓
+Optimization Recommendations
+22. Important Python Code
+Model Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.impute import SimpleImputer
+
+numerical_transformer = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="median"))
+    ]
+)
+
+categorical_transformer = Pipeline(
+    steps=[
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore"))
+    ]
+)
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", numerical_transformer, numerical_features),
+        ("cat", categorical_transformer, categorical_features)
+    ]
+)
+Random Forest Model
+from sklearn.ensemble import RandomForestRegressor
+
+rf_model = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        ("model", RandomForestRegressor(
+            n_estimators=100,
+            max_depth=15,
+            random_state=42,
+            n_jobs=-1
+        ))
+    ]
+)
+
+rf_model.fit(X_train, y_train)
+
+y_pred = rf_model.predict(X_test)
+Evaluation
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+import numpy as np
+
+mae = mean_absolute_error(y_test, y_pred)
+
+rmse = np.sqrt(
+    mean_squared_error(y_test, y_pred)
+)
+
+r2 = r2_score(y_test, y_pred)
+
+print("MAE:", mae)
+print("RMSE:", rmse)
+print("R2:", r2)
+Optimization Calculation
+test_results = X_test.copy()
+
+test_results["Actual_Shipping_Days"] = y_test.values
+test_results["Predicted_Shipping_Days"] = y_pred
+
+test_results["Scheduled_Shipping_Days"] = (
+    test_results["Days for shipment (scheduled)"]
+)
+
+test_results["Predicted_Schedule_Deviation"] = (
+    test_results["Predicted_Shipping_Days"]
+    - test_results["Scheduled_Shipping_Days"]
+)
+
+test_results["Predicted_Delay_Days"] = np.maximum(
+    test_results["Predicted_Schedule_Deviation"],
+    0
+)
+
+test_results["Predicted_Delay_Risk"] = (
+    test_results["Predicted_Schedule_Deviation"] > 0
+)
+
+23. Key Findings
+The major findings from the predictive and optimization analysis are:
+1.	Random Forest achieved the best overall baseline performance.
+2.	The final Random Forest achieved an RMSE of 1.2651 days.
+3.	The final model achieved an R² of 0.3928.
+4.	Five-fold cross-validation confirmed relatively stable model performance.
+5.	Hyperparameter tuning improved MAE only slightly and did not improve RMSE or R².
+6.	Scheduled shipping duration was the dominant predictive feature.
+7.	Second Class had the largest predicted schedule gap among shipping modes.
+8.	Several regions showed high model-based predicted delay risk.
+9.	The current feature set provides moderate predictive performance.
+10.	Additional operational features could significantly improve future predictions.
+11.	Dynamic scheduling can help create more realistic delivery commitments.
+12.	Risk-based resource allocation can focus intervention on high-risk shipments.
+13.	Route optimization requires additional distance, traffic, and route information.
+14.	Cost optimization should focus resources on high-risk shipments rather than applying expensive interventions universally.
+
+24. Limitations
+The project has several limitations:
+•	Detailed route information is unavailable.
+•	Distance information is unavailable.
+•	Traffic conditions are unavailable.
+•	Weather information is unavailable.
+•	Carrier-level operational information is limited.
+•	The model predicts shipping duration rather than directly optimizing routes.
+•	Model-based predicted delay rates should not be treated as historical actual delay rates.
+•	Feature importance does not establish causal relationships.
+•	Additional operational features may be required for higher predictive accuracy.
+
+25. Future Improvements
+Future versions of the project can include:
+•	XGBoost regression
+•	LightGBM
+•	Gradient Boosting
+•	Advanced hyperparameter optimization
+•	Route optimization algorithms
+•	Traffic data integration
+•	Weather data integration
+•	Carrier performance analysis
+•	Real-time shipment tracking
+•	Cost-aware optimization
+•	Power BI logistics dashboard
+•	FastAPI prediction API
+•	Automated model monitoring
+•	Real-time delivery-delay alert system
+
+26. Final Recommendations
+Based on the analysis, the following recommendations are proposed:
+Recommendation 1
+Implement dynamic scheduling using predicted shipping duration.
+Recommendation 2
+Develop a risk-based early-warning system for potentially delayed shipments.
+Recommendation 3
+Review Second Class shipping because of its large predicted schedule gap.
+Recommendation 4
+Investigate regions with consistently high predicted delay risk.
+Recommendation 5
+Use targeted resource allocation instead of applying additional resources to every shipment.
+Recommendation 6
+Collect route, distance, traffic, weather, and carrier information for future route optimization.
+Recommendation 7
+Integrate the model with a Power BI dashboard or operational application.
+Recommendation 8
+Continuously monitor model performance and retrain the model when new logistics data becomes available.
+
+27. Conclusion
+This project demonstrates an end-to-end predictive analytics approach for logistics delivery performance.
+The analysis began with a logistics prediction problem in which the objective was to predict actual shipping time. Three regression models—Linear Regression, Decision Tree Regression, and Random Forest Regression—were trained and evaluated.
+Random Forest achieved the strongest overall baseline performance, with an MAE of 0.9851 days, RMSE of 1.2651 days, and R² of 0.3928. Five-fold cross-validation supported the stability of the model. Hyperparameter tuning produced only marginal changes, so the original Random Forest was retained as the final model.
+The model was then used to estimate potential schedule deviations and identify shipping modes and regions requiring operational attention. Second Class shipments showed the largest predicted schedule gap, while several regions showed relatively high model-based predicted delay risk.
+The optimization analysis provides a practical framework for dynamic scheduling, risk-based prioritization, resource allocation, route-planning improvement, and targeted cost control.
+Although the current model provides moderate predictive performance, its effectiveness can be improved by adding route distance, traffic, weather, carrier, inventory, and other operational variables.
+Overall, this project demonstrates how logistics data can be transformed into predictive insights and practical recommendations for improving delivery performance and operational decision-making.
+
